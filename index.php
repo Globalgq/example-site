@@ -8,26 +8,44 @@
 </form>
 </html>
 <?php
-if (isset($_POST['submit'])) {
-// Get the returned JSON formatted data of the username and password being used in the variable below.
-    $responder = file_get_contents("http://global.gq/serviceLogin.php?login_username=" . $_POST['username'] . "&login_password=" . $_POST['password']);
-    // Decode the JSON
-    $decode    = json_decode($responder, true);
-    
-    // Check the status of the login operation
-    switch ($decode['Data']['Status']) {
-    // When you are successfully logged in.
-        case "loggedIn":
-            echo "Hello and welcome to our site, ".$decode['Data']['Username']."!";
-            break;
-            // When the account username entered does not exist.
-        case "accountNotCreated":
-            echo "The account entered does not exist.";
-            break;
-            // When the password is incorrect.
-        case "accountPasswordWrong":
-            echo "Incorrect password.";
-            break;
-    }
+if( isset($_POST['submit'])){
+	// The data we're posting.
+	$dataArray = array(
+		"login_username" => $_POST['username'],
+		"login_password" => $_POST['password'],
+        // Enter your token.
+		"token" => ""
+		);
+	// Initialize a curl session.
+	$curlHandler = curl_init();
+	// Set the curl URL.
+	curl_setopt($curlHandler, CURLOPT_URL, "http://global.gq/serviceLogin.php");
+	curl_setopt($curlHandler, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($curlHandler, CURLOPT_POST, 1);
+	curl_setopt($curlHandler, CURLOPT_POSTFIELDS, $dataArray);
+	// Executing.
+	$execute = curl_exec($curlHandler);
+	$returnData = $execute;
+	$decode = json_decode($returnData, true);
+	/**
+	Status types:
+	- "loggedIn": User is logged in.
+	- "accountPasswordWrong": Password is incorrect.
+	- "accountNotCreated": Account not does exist.
+	**/
+	switch($decode['Data']['Status']){
+		case "loggedIn":
+		echo "You have been logged in.";
+		echo "Your email is ".$decode['Data']['Email'];
+		break;
+		case "accountPasswordWrong":
+		echo "You entered an invalid password.";
+		break;
+		case "accountNotCreated":
+		echo "That account does not exist.";
+print_r($execute);
+		break;
+	}
+	curl_close($curlHandler);
 }
 ?>
