@@ -27,12 +27,12 @@ if( isset($_POST['submit'])){
 	$execute = curl_exec($curlHandler);
 	$returnData = $execute;
 	$decode = json_decode($returnData, true);
-	/**
+	/*
 	Status types:
 	- "loggedIn": User is logged in.
 	- "accountPasswordWrong": Password is incorrect.
 	- "accountNotCreated": Account not does exist.
-	**/
+	*/
 	switch($decode['Data']['Status']){
 		case "loggedIn":
 		echo "You have been logged in.";
